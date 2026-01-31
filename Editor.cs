@@ -11,9 +11,11 @@ public static class Editor
   }
   public static void Iniciar()
   {
+    bool erro = false;
     short salvar = 0;
     ConsoleKey key;
     var file = new StringBuilder();
+    List<int> linhas = new List<int>() { 0 };
     do
     {
       var keyInfo = Console.ReadKey(true);
@@ -22,15 +24,74 @@ public static class Editor
       {
         break;
       }
-      file.Append(keyInfo.KeyChar);
-      Console.Write(keyInfo.KeyChar);
-      file.Append(Environment.NewLine);
+      if (key == ConsoleKey.Tab)
+      {
+        string tab = "\t";
+        file.Append(tab);
+        Console.Write(tab);
+        continue;
+      }
+      if (key == ConsoleKey.Enter)
+      {
+        string enter = Environment.NewLine;
+        file.Append(enter);
+        Console.Write(enter);
+        linhas.Add(0);
+        continue;
+      }
+      if (key == ConsoleKey.Spacebar)
+      {
+        string barraEspaco = " ";
+        file.Append(barraEspaco);
+        Console.Write(barraEspaco);
+        linhas[linhas.Count - 1]++;
+        continue;
+      }
+      if (key == ConsoleKey.Backspace)
+      {
+        if (file.Length > 0)
+        {
+          file.Remove(file.Length - 1, 1);
+          var esquerda = Console.CursorLeft;
+          var topo = Console.CursorTop;
+
+          if (esquerda > 0)
+          {
+            Console.SetCursorPosition(esquerda - 1, topo);
+            Console.Write(" ");
+            Console.SetCursorPosition(esquerda - 1, topo);
+          }
+          else if (esquerda == 0 && topo != 1 && linhas.Count > 1)
+          {
+            file.Remove(file.Length - 1, 1);
+            linhas.RemoveAt(linhas.Count - 1);
+
+            var ultimaColuna = linhas[linhas.Count - 1];
+            Console.SetCursorPosition(ultimaColuna, topo - 1);
+          }
+          continue;
+        }
+      }
+      if (!char.IsControl(keyInfo.KeyChar))
+      {
+        file.Append(keyInfo.KeyChar);
+        Console.Write(keyInfo.KeyChar);
+        linhas[linhas.Count - 1]++;
+      }
     } while (true);
 
     while (salvar != 1 && salvar != 2)
     {
-      Console.WriteLine("\nDeseja salvar o arquivo?\n 1 - Salvar\n 2 - Sair");
-      salvar = short.Parse(Console.ReadLine());
+      if (!erro)
+      {
+        Console.WriteLine("\nDeseja salvar o arquivo?\n 1 - Salvar\n 2 - Sair");
+      }
+      if (!short.TryParse(Console.ReadLine(), out salvar))
+      {
+        erro = true;
+        Console.WriteLine("Digite uma opção valida");
+        continue;
+      }
       switch (salvar)
       {
         case 1: Salvar(file); break;
@@ -42,13 +103,15 @@ public static class Editor
   }
   public static void Salvar(StringBuilder file)
   {
-    Console.WriteLine(file);
-    Console.WriteLine("Qual o caminho para salvar?");
-    var path = Console.ReadLine();
+    var path = string.Empty;
+    while (string.IsNullOrEmpty(path))
+    {
+      Console.WriteLine("Qual o caminho para salvar?");
+      path = Console.ReadLine();
+    }
     try
     {
-      string directory = Path.GetDirectoryName(path);
-      if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+      if (!string.IsNullOrEmpty(Path.GetDirectoryName(path)) && !Directory.Exists(Path.GetDirectoryName(path)))
       {
         Console.WriteLine("Pasta não existe, criando arquivo no diretório atual...");
         path = Path.GetFileName(path);

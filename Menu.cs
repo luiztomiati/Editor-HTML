@@ -8,7 +8,7 @@ public class Menu
     {
       int originalBufferWidth = Console.BufferWidth;
       int originalBufferHeight = Console.BufferHeight;
-      var largura = 30;
+      var largura = 50;
       var altura = 10;
       var menu = new Menu();
       menu.ConfiguraTerminal(true);
@@ -19,7 +19,7 @@ public class Menu
       {
         Show();
       }
-      ValidarOpcao(opcao);
+      ValidarOpcao(opcao, largura);
     }
     catch (Exception e)
     {
@@ -51,7 +51,7 @@ public class Menu
     OpcaoTexto("0 - Sair", largura, 5);
     OpcaoTexto("Opção: ", largura, 7);
   }
-  public static void ValidarOpcao(int opcao)
+  public static void ValidarOpcao(int opcao, int largura)
   {
     switch (opcao)
     {
@@ -59,9 +59,16 @@ public class Menu
       case 0:
         {
           Console.Clear();
-          Environment.Exit(0);
+          Sair();
           break;
         }
+      default:
+        {
+          OpcaoTexto("Digite uma opção valida!", largura, 9);
+          Thread.Sleep(2000);
+          Show();
+        }
+        ; break;
     }
   }
   private void ConfiguraTerminal(bool iniciar)
@@ -88,7 +95,7 @@ public class Menu
     int coluna = 0;
     if (central)
     {
-      coluna = (largura - texto.Length - 1) / 2;
+      coluna = (largura - texto.Length) / 2;
       Console.SetCursorPosition(coluna, linha);
       Console.Write(texto);
     }
@@ -98,5 +105,11 @@ public class Menu
       Console.SetCursorPosition(coluna / 2, linha);
       Console.Write(texto);
     }
+  }
+  public static void Sair()
+  {
+    var menu = new Menu();
+    menu.ConfiguraTerminal(false);
+    Environment.Exit(0);
   }
 }
