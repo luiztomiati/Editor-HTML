@@ -18,17 +18,23 @@ public static class Editor
     {
       var keyInfo = Console.ReadKey(true);
       key = keyInfo.Key;
-      file.Append(Console.ReadLine());
+      if (key == ConsoleKey.Escape)
+      {
+        break;
+      }
+      file.Append(keyInfo.KeyChar);
+      Console.Write(keyInfo.KeyChar);
       file.Append(Environment.NewLine);
-    } while (key != ConsoleKey.Escape);
+    } while (true);
+
     while (salvar != 1 && salvar != 2)
     {
-      Console.WriteLine("Deseja salvar o arquivo?\n 1 - Salvar\n 2 - Sair");
+      Console.WriteLine("\nDeseja salvar o arquivo?\n 1 - Salvar\n 2 - Sair");
       salvar = short.Parse(Console.ReadLine());
       switch (salvar)
       {
         case 1: Salvar(file); break;
-        case 2: Console.Write("Sair"); break;
+        case 2: Environment.Exit(0); break;
         default:
           Console.WriteLine("Opção invalida digite novamente!"); break;
       }

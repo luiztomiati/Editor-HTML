@@ -1,57 +1,102 @@
 public class Menu
 {
+  public int originalBufferWidth;
+  public int originalBufferHeight;
   public static void Show()
   {
-    var largura = 30;
-    var altura = 10;
-    CriacaoTela(largura, altura);
-    MenuOpcoes(largura);
-    int opcao = int.Parse(Console.ReadLine());
-    ValidarOpcao(opcao);
-
+    try
+    {
+      int originalBufferWidth = Console.BufferWidth;
+      int originalBufferHeight = Console.BufferHeight;
+      var largura = 30;
+      var altura = 10;
+      var menu = new Menu();
+      menu.ConfiguraTerminal(true);
+      CriacaoTela(largura, altura);
+      MenuOpcoes(largura);
+      int opcao;
+      if (!int.TryParse(Console.ReadLine(), out opcao))
+      {
+        Show();
+      }
+      ValidarOpcao(opcao);
+    }
+    catch (Exception e)
+    {
+      Console.WriteLine(e.Message);
+    }
   }
   public static void CriacaoTela(int largura, int altura)
   {
+
     Console.Clear();
-    Console.SetCursorPosition(1, 0);
-    Console.Write('+' + new string('-', largura - 1) + '+');
+    var texto = "EDITOR DE TEXTO";
+    var titulo = " " + texto + " ";
+    int traco = largura - titulo.Length;
+    Console.Write('+' + new string('-', traco / 2) + titulo + new string('-', traco / 2) + '+');
     for (var i = 1; i < altura; i++)
     {
-      Console.SetCursorPosition(1, i);
+      Console.SetCursorPosition(0, i);
       Console.Write("|");
-      Console.SetCursorPosition(largura + 1, i);
+      Console.SetCursorPosition(largura, i);
       Console.Write("|");
     }
-    Console.SetCursorPosition(1, altura);
+    Console.SetCursorPosition(0, altura);
     Console.Write('+' + new string('-', largura - 1) + '+');
   }
   public static void MenuOpcoes(int largura)
   {
-    Console.SetCursorPosition(largura / 2 - 3, 0);
-    Console.WriteLine("EDITOR HTML");
-    Console.SetCursorPosition(largura / 2 - 5, 2);
-    Console.WriteLine("OPÇÕES");
-    Console.SetCursorPosition(largura / 2 - 3, 4);
-    Console.WriteLine("1 - Novo arquivo");
-    Console.SetCursorPosition(largura / 2 - 3, 5);
-    Console.WriteLine("2 - Abrir arquivo");
-    Console.SetCursorPosition(largura / 2 - 3, 6);
-    Console.WriteLine("0 - Sair");
-    Console.SetCursorPosition(largura / 2 - 3, 8);
-    Console.Write("Opção: ");
+    OpcaoTexto("OPÇÕES", largura, 2, true);
+    OpcaoTexto("1 - Criar Texto", largura, 4);
+    OpcaoTexto("0 - Sair", largura, 5);
+    OpcaoTexto("Opção: ", largura, 7);
   }
   public static void ValidarOpcao(int opcao)
   {
     switch (opcao)
     {
       case 1: Editor.Show(); break;
-      case 2: Console.WriteLine("Exibir arquivo"); break;
       case 0:
         {
           Console.Clear();
           Environment.Exit(0);
           break;
         }
+    }
+  }
+  private void ConfiguraTerminal(bool iniciar)
+  {
+    if (!OperatingSystem.IsWindows())
+    {
+      return;
+    }
+    if (iniciar)
+    {
+      var largura = 60;
+      var altura = 30;
+      var BufferWidth = Math.Max(largura, Console.WindowWidth);
+      var BufferHeight = Math.Max(altura, Console.WindowHeight);
+      Console.SetBufferSize(BufferWidth, BufferHeight);
+    }
+    else
+    {
+      Console.SetBufferSize(originalBufferWidth, originalBufferHeight);
+    }
+  }
+  static void OpcaoTexto(string texto, int largura, int linha, bool central = false)
+  {
+    int coluna = 0;
+    if (central)
+    {
+      coluna = (largura - texto.Length - 1) / 2;
+      Console.SetCursorPosition(coluna, linha);
+      Console.Write(texto);
+    }
+    else
+    {
+      coluna = largura / 2;
+      Console.SetCursorPosition(coluna / 2, linha);
+      Console.Write(texto);
     }
   }
 }
